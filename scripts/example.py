@@ -1,12 +1,12 @@
 ### MongoDB 数据库连接示例
-# mongosh mongodb://userName:daseCDMS2023@110.40.142.252:27017
-
+# mongosh mongodb://userName:******@110.40.142.252:27017
+# 密码和ip已隐藏
 from pymongo import MongoClient
 
 # 连接到 MongoDB
 ### 用户名: userName
-### 密码: daseCDMS2023
-client = MongoClient('mongodb://userName:daseCDMS2023@110.40.142.252:27017')
+### 密码: ******
+client = MongoClient('mongodb://userName:******@110.40.***.***:27017')
 db = client['book']
 collection = db['book']
 # 查询集合中的前五个文档
