@@ -4,7 +4,7 @@ import sqlite3 as sqlite
 from pymongo import MongoClient
 
 # 也许应当移动到配置文件中
-connect_url = "mongodb://userName:daseCDMS2023@127.0.0.1:27017"
+connect_url = "mongodb://userName:daseCDMS2023@110.40.142.252:27017"
 
 class Store:
     database: str
