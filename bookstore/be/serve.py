@@ -9,7 +9,7 @@ from be.view import buyer
 from be.model.store import init_database
 
 bp_shutdown = Blueprint("shutdown", __name__)
-
+bp_test = Blueprint("test", __name__)
 
 def shutdown_server():
     func = request.environ.get("werkzeug.server.shutdown")
@@ -23,6 +23,14 @@ def be_shutdown():
     shutdown_server()
     return "Server shutting down..."
 
+# 可以通过这个测试接口测试功能函数的正确性
+@bp_test.route("/test")
+def be_test():
+    # 这里可以调用功能函数进行测试
+    ### res = somefunction()
+    # 这里可以设置返回值
+    # return f"{res}"
+    return "Server test..."
 
 def be_run():
     this_path = os.path.dirname(__file__)
