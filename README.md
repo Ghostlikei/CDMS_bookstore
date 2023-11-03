@@ -47,7 +47,7 @@ class User:
     balance,
     token,
     terminal,
-    store, # 目前不清楚一个用户是否能开多个书店，暂定只能开一个书店，这一项为null或store的sid
+    sid, # 目前不清楚一个用户是否能开多个书店，暂定只能开一个书店，这一项为null或store的sid
     orders, # 未完成的订单
     oldOrders, # 已完成的订单
 ```

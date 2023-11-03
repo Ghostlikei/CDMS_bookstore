@@ -17,6 +17,6 @@ class DBConn:
         return book is not None
 
     def store_id_exist(self, store_id):
-        store_collection = self.db["store"]
+        store_collection = self.db["user"]
         store = store_collection.find_one({"sid": store_id})
         return store is not None
