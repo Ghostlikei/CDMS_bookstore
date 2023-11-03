@@ -37,7 +37,7 @@ class Book:
     pictures: [bytes]
 ```
 
-`be`数据库比较复杂，它包含这么几个collection，分别是`user`, `store`, `order`, `order_detail`，具体为
+`be`数据库比较复杂，它包含这么几个collection，分别是`user`, `store`, `order`, `order_detail`,`order_archive`具体为
 ```
 class User:
     _uid, # mongodb 默认建立
@@ -48,6 +48,8 @@ class User:
     token,
     terminal,
     sid, # 目前不清楚一个用户是否能开多个书店，暂定只能开一个书店，这一项为null或store的sid
+    orders, # 未完成的订单
+    oldOrders, # 已完成的订单
 ```
 
 `store`集合虽然看起来叫书店，但其实是用来表示书店和书的关系。
@@ -66,9 +68,10 @@ class Store:
 class Order:
     _uid, # mongodb 默认建立
     oid = _uid
-    user_id # 买家uid
-    store_id # 书店id
+    uid # 买家uid
+    sid # 书店id
     # 以及一些其它的信息，没想好
+    state, # 订单状态：待付款，待发货，待收货，已收货
 ```
 
 ```
@@ -81,5 +84,20 @@ class OrderDetail:
 ```
 
 同样的，也可以在`Order`中用一个列表存放所有的书本；但由于一个订单可能包含不同种类的不同数量的书本，这样设计可以加速CRUD操作。
+
+```
+class OrderArchive:
+    oid,
+    bid,
+    sid, # 商店id
+    count,
+    price,
+```
+`OrderArchive`用于存储已经完成的订单（与书本的关系），将未完成的订单与已完成的订单分别存储的原因基于下面的事实：
+- 随着时间和用户的增加，未完成的订单数远小于已完成的订单
+- 在订单未完成时，我们会频繁地对订单进行CRUD操作，包括更改订单状态，删除订单等
+- 对于用户而言，用户在订单未完成时查询订单的频率一般高于查询已完成的订单
+
+因此，分开存储两种订单有助于我们缩小CRUD操作进行的文档集合的大小，提升操作效率
 
 上面的设计应该可以保证完成绝大多数功能，唯一需要再研究的是如何实现效率较高的搜索功能
