@@ -16,7 +16,10 @@ class Store:
     def init_tables(self):
         collections = ["user", "store", "order", "order_detail"]
         indexs = {
-            "user": 'uid'
+            "user": 'uid',
+            "store": ['sid', 'bid'],
+            "order": 'oid',
+            "order_detail": ['oid', 'bid']
         }
         client = self.get_db_conn()
         db = client[self.database]
