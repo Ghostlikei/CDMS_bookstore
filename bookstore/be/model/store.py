@@ -15,6 +15,9 @@ class Store:
 
     def init_tables(self):
         collections = ["user", "store", "order", "order_detail"]
+        indexs = {
+            "user": 'uid'
+        }
         client = self.get_db_conn()
         db = client[self.database]
         # we use session to manage the transaction and rollback
@@ -27,6 +30,9 @@ class Store:
                         if collection not in collections_name:
                             logging.info(f"collection {collection} not exist, create it")
                             db.create_collection(collection)
+                            index = indexs.get(collection, None)
+                            if index is not None:
+                                db[collection].create_index(index, unique = True)
                         else:
                             logging.info(f"collection {collection} already exist")
                     session.commit_transaction()
@@ -41,7 +47,7 @@ class Store:
         return client
 
 
-database_instance: Store = None
+database_instance: Store = Store("")
 
 
 def init_database(db_path):
