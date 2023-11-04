@@ -30,6 +30,7 @@ def be_test():
     ### res = somefunction()
     # 这里可以设置返回值
     # return f"{res}"
+
     return "Server test..."
 
 def be_run():
@@ -46,6 +47,7 @@ def be_run():
     handler.setFormatter(formatter)
     logging.getLogger().addHandler(handler)
     app = Flask(__name__)
+    app.register_blueprint(bp_test)
     app.register_blueprint(bp_shutdown)
     app.register_blueprint(auth.bp_auth)
     app.register_blueprint(seller.bp_seller)
