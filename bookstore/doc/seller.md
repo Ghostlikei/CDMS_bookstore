@@ -1,7 +1,5 @@
 ## 创建商铺
 
-
-
 #### URL
 
 POST http://[address]/seller/create_store

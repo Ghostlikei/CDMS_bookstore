@@ -1,5 +1,4 @@
 # import sqlite3 as sqlite
-from pymongo import MongoClient
 from be.model import error
 from be.model import db_conn
 

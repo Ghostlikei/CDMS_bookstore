@@ -49,7 +49,7 @@ class Buyer:
         r = requests.post(url, headers=headers, json=json)
         return r.status_code
 
-    def confirm(self, order_id: str):
+    def confirm(self, order_id: str) -> int:
         json = {
             "user_id": self.user_id,
             "password": self.password,
@@ -60,7 +60,7 @@ class Buyer:
         r = requests.post(url, headers=headers, json = json)
         return r.status_code
     
-    def list_orders(self):
+    def list_orders(self) -> (int, list):
         json = {
             "user_id": self.user_id,
             "password": self.password,
@@ -71,7 +71,7 @@ class Buyer:
         response_json = r.json()
         return r.status_code, response_json.get("orders")
     
-    def cancel(self, order_id: str):
+    def cancel(self, order_id: str) -> int:
         json = {
             "user_id": self.user_id,
             "password": self.password,
