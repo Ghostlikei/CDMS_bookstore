@@ -2,7 +2,7 @@
 from pymongo import MongoClient
 from be.model import error
 from be.model import db_conn
-
+from pymongo.errors import PyMongoError
 
 class Seller(db_conn.DBConn):
     def __init__(self):
@@ -33,8 +33,10 @@ class Seller(db_conn.DBConn):
                 "stock_level": stock_level,
             }
             store_collection.insert_one(store_data)
-        except Exception as e:
-            return 528, str(e)
+        except PyMongoError as e:
+            return 528, "{}".format(str(e))
+        except BaseException as e:
+            return 530, "{}".format(str(e))
         return 200, "ok"
 
     def add_stock_level(
@@ -53,8 +55,10 @@ class Seller(db_conn.DBConn):
                 {"sid": store_id, "bid": book_id},
                 {"$inc": {"stock_level": add_stock_level}}
             )
-        except Exception as e:
-            return 528, str(e)
+        except PyMongoError as e:
+            return 528, "{}".format(str(e))
+        except BaseException as e:
+            return 530, "{}".format(str(e))
         return 200, "ok"
 
     def create_store(self, user_id: str, store_id: str) -> (int, str):
@@ -65,7 +69,8 @@ class Seller(db_conn.DBConn):
                 return error.error_exist_store_id(store_id)
             user_store_collection = self.db["user"]
             user_store_collection.update_one({"uid": user_id},{"$set":{"sid":store_id}})
-        except Exception as e:
-            print(e)
-            return 528, str(e)
+        except PyMongoError as e:
+            return 528, "{}".format(str(e))
+        except BaseException as e:
+            return 530, "{}".format(str(e))
         return 200, "ok"
