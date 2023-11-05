@@ -57,7 +57,7 @@ class User:
 class Store:
     _uid, # mongodb 默认建立
     # (sid, bid)上建立复合索引
-    sid = _uid,
+    sid,
     bid,
     stock_level,
     owner # 拥有者的用户uid
@@ -69,7 +69,7 @@ class Order:
     _uid, # mongodb 默认建立
     oid = _uid
     uid # 买家uid
-    sid # 书店id
+    sid # 书店id，建立索引
     # 以及一些其它的信息，没想好
     state, # 订单状态：待付款，待发货，待收货，已收货
 ```

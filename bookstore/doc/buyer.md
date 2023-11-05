@@ -142,3 +142,124 @@ Status Code:
 200 | 充值成功
 401 | 授权失败
 5XX | 无效参数
+
+## 买家确认收货
+
+#### URL：
+POST http://[address]/buyer/confirm
+
+#### Request
+
+
+
+##### Body:
+```json
+{
+  "user_id": "user_id",
+  "order_id": "order_id",
+  "password": "password",
+}
+```
+
+##### 属性说明：
+
+key | 类型 | 描述 | 是否可为空
+---|---|---|---
+user_id | string | 买家用户ID | N
+order_id | string | 订单ID | N
+password | string | 用户密码 | N
+
+
+Status Code:
+
+码 | 描述
+--- | ---
+200 | 确认成功
+401 | 授权失败
+5XX | 无效参数
+
+Note: 用户id或订单id错误会返回无效参数
+
+## 买家查询全部订单
+
+#### URL：
+POST http://[address]/buyer/list_orders
+
+#### Request
+
+
+
+##### Body:
+```json
+{
+  "user_id": "user_id",
+  "password": "password",
+}
+```
+
+##### 属性说明：
+
+key | 类型 | 描述 | 是否可为空
+---|---|---|---
+user_id | string | 买家用户ID | N
+password | string | 用户密码 | N
+
+
+Status Code:
+
+码 | 描述
+--- | ---
+200 | 确认成功
+401 | 授权失败
+5XX | 无效参数
+
+##### Body:
+```json
+{
+  "orders": [
+    {
+      "order_id": "order_id",
+      "state": "state"
+    }
+  ]
+}
+```
+
+Note: 用户id错误会返回无效参数
+
+## 买家取消订单
+
+#### URL：
+POST http://[address]/buyer/cancel
+
+#### Request
+
+
+
+##### Body:
+```json
+{
+  "user_id": "user_id",
+  "order_id": "order_id",
+  "password": "password",
+}
+```
+
+##### 属性说明：
+
+key | 类型 | 描述 | 是否可为空
+---|---|---|---
+user_id | string | 买家用户ID | N
+order_id | string | 订单ID | N
+password | string | 用户密码 | N
+
+
+Status Code:
+
+码 | 描述
+--- | ---
+200 | 确认成功
+401 | 授权失败
+5XX | 无效参数
+
+Note: 用户id或订单id错误会返回无效参数
