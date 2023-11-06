@@ -24,9 +24,10 @@ def seller_add_book():
     stock_level: str = request.json.get("stock_level", 0)
     book_info = dict(book_info)
     id = book_info.get("id")
+    price = book_info.get("price")
     s = seller.Seller()
     code, message = s.add_book(
-        user_id, store_id, id, json.dumps(book_info), stock_level
+        user_id, store_id, id, json.dumps(book_info), stock_level , price
     )
 
     return jsonify({"message": message}), code
