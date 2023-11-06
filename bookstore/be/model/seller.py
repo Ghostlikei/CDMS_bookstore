@@ -27,6 +27,7 @@ class Seller(db_conn.DBConn):
 
             store_collection = self.db["store"]
             store_data = {
+                "owner": user_id,
                 "sid": store_id,
                 "bid": book_id,
                 # "book_info": 'str',
@@ -75,3 +76,26 @@ class Seller(db_conn.DBConn):
         except BaseException as e:
             return 530, "{}".format(str(e))
         return 200, "ok"
+
+    def handle_order(self,user_id: str, store_id : str, order_id: str):
+
+        try:
+            if not self.user_id_exist(user_id):
+                return error.error_non_exist_user_id(user_id)
+            if not self.store_id_exist(store_id):
+                return error.error_non_exist_store_id(store_id)
+            if not self.order_id_exist(order_id):
+                print(f"eo: {order_id}")
+                return error.error_invalid_order_id(order_id)
+            order_collection = self.db["order"]
+            query = {"state": "ToShip"}
+            update = {"$set": {"state": "Shipped"}}
+            result = order_collection.update_many(query, update)
+            if result.modified_count > 0:
+                return 200, "ok"
+            else:
+                return error.error_wrong_state(order_id)
+        except PyMongoError as e:
+            return 528, "{}".format(str(e))
+        except BaseException as e:
+            return 530, "{}".format(str(e))

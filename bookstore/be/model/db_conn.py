@@ -20,3 +20,8 @@ class DBConn:
         store_collection = self.db["user"]
         store = store_collection.find_one({"sid": store_id})
         return store is not None
+
+    def order_id_exist(self, order_id):
+        order_collection = self.db["order"]
+        order = order_collection.find_one({"oid": order_id})
+        return order is not None
