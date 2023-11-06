@@ -1,4 +1,6 @@
-import sqlite3 as sqlite
+# import sqlite3 as sqlite
+import pymongo
+
 import uuid
 import json
 import logging
@@ -11,8 +13,12 @@ class Buyer(db_conn.DBConn):
         db_conn.DBConn.__init__(self)
 
     def new_order(
-        self, user_id: str, store_id: str, id_and_count: [(str, int)]
+        self, 
+        user_id: str, 
+        store_id: str, 
+        id_and_count: [(str, int)]
     ) -> (int, str, str):
+        # return ()
         order_id = ""
         try:
             if not self.user_id_exist(user_id):
@@ -21,30 +27,55 @@ class Buyer(db_conn.DBConn):
                 return error.error_non_exist_store_id(store_id) + (order_id,)
             uid = "{}_{}_{}".format(user_id, store_id, str(uuid.uuid1()))
 
+            total_price = 0
+            order_details = []
+            store_collection = self.db["store"]
+
             for book_id, count in id_and_count:
-                cursor = self.conn.execute(
-                    "SELECT book_id, stock_level, book_info FROM store "
-                    "WHERE store_id = ? AND book_id = ?;",
-                    (store_id, book_id),
-                )
-                row = cursor.fetchone()
-                if row is None:
+                # cursor = self.conn.execute(
+                #     "SELECT book_id, stock_level, book_info FROM store "
+                #     "WHERE store_id = ? AND book_id = ?;",
+                #     (store_id, book_id),
+                # )
+                # row = cursor.fetchone()
+                # if row is None:
+                #     return error.error_non_exist_book_id(book_id) + (order_id,)
+                single_store_info = store_collection.find_one({"sid": store_id, "bid": book_id})
+                if not single_store_info:
                     return error.error_non_exist_book_id(book_id) + (order_id,)
 
-                stock_level = row[1]
-                book_info = row[2]
-                book_info_json = json.loads(book_info)
-                price = book_info_json.get("price")
+                # stock_level = row[1]
+                # book_info = row[2]
+                # book_info_json = json.loads(book_info)
+                # price = book_info_json.get("price")
 
+                # if stock_level < count:
+                #     return error.error_stock_level_low(book_id) + (order_id,)
+                
+                # cursor = self.conn.execute(
+                #     "UPDATE store set stock_level = stock_level - ? "
+                #     "WHERE store_id = ? and book_id = ? and stock_level >= ?; ",
+                #     (count, store_id, book_id, count),
+                # )
+                # if cursor.rowcount == 0:
+                #     return error.error_stock_level_low(book_id) + (order_id,)
+
+                stock_level = single_store_info['stock_level']
                 if stock_level < count:
+                    # No enough supplement
                     return error.error_stock_level_low(book_id) + (order_id,)
 
-                cursor = self.conn.execute(
-                    "UPDATE store set stock_level = stock_level - ? "
-                    "WHERE store_id = ? and book_id = ? and stock_level >= ?; ",
-                    (count, store_id, book_id, count),
+                ### Here we need an extra query for Book collection
+                # (TODO)
+                price = single_store_info['price']
+                total_price += price * count
+
+                # Update the stock level
+                result = store_collection.update_one(
+                    {"_id": single_store_info['_id'], "stock_level": {"$gte": count}},
+                    {"$inc": {"stock_level": -count}}
                 )
-                if cursor.rowcount == 0:
+                if result.modified_count == 0:
                     return error.error_stock_level_low(book_id) + (order_id,)
 
                 self.conn.execute(
@@ -70,6 +101,7 @@ class Buyer(db_conn.DBConn):
         return 200, "ok", order_id
 
     def payment(self, user_id: str, password: str, order_id: str) -> (int, str):
+        return ()
         conn = self.conn
         try:
             cursor = conn.execute(
@@ -163,27 +195,47 @@ class Buyer(db_conn.DBConn):
 
     def add_funds(self, user_id, password, add_value) -> (int, str):
         try:
-            cursor = self.conn.execute(
-                "SELECT password  from user where user_id=?", (user_id,)
-            )
-            row = cursor.fetchone()
-            if row is None:
+            # cursor = self.conn.execute(
+            #     "SELECT password  from user where user_id=?", (user_id,)
+            # )
+            # row = cursor.fetchone()
+            # if row is None:
+            #     return error.error_authorization_fail()
+
+            # if row[0] != password:
+            #     return error.error_authorization_fail()
+            user_collection = self.db["user"]
+
+            user = user_collection.find_one({"uid": user_id}, {"_id": 0, "password": 1, "balance": 1})
+            if user is None:
+                return error.error_non_exist_user_id(user_id)
+            
+            if user['password'] != password:
                 return error.error_authorization_fail()
 
-            if row[0] != password:
-                return error.error_authorization_fail()
+            # cursor = self.conn.execute(
+            #     "UPDATE user SET balance = balance + ? WHERE user_id = ?",
+            #     (add_value, user_id),
+            # )
+            # if cursor.rowcount == 0:
+            #     return error.error_non_exist_user_id(user_id)
 
-            cursor = self.conn.execute(
-                "UPDATE user SET balance = balance + ? WHERE user_id = ?",
-                (add_value, user_id),
+            # self.conn.commit()
+
+            # Update the user's balance
+            result = user_collection.update_one(
+                {"uid": user_id},
+                {"$inc": {"balance": add_value}}
             )
-            if cursor.rowcount == 0:
+            
+            if result.modified_count == 0:
+                # If no document has been modified, the user_id does not exist
                 return error.error_non_exist_user_id(user_id)
 
-            self.conn.commit()
-        except sqlite.Error as e:
-            return 528, "{}".format(str(e))
+        except Exception as e:
+            return 528, f"Unexpected error: {str(e)}"
         except BaseException as e:
             return 530, "{}".format(str(e))
 
         return 200, "ok"
+
