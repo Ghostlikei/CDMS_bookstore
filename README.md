@@ -48,8 +48,8 @@ class User:
     token,
     terminal,
     sid, # 目前不清楚一个用户是否能开多个书店，暂定只能开一个书店，这一项为null或store的sid
-    orders, # 未完成的订单
-    oldOrders, # 已完成的订单
+    orders, # 未完成的订单，存储oid
+    oldOrders, # 已完成的订单，存储oid
 ```
 
 `store`集合虽然看起来叫书店，但其实是用来表示书店和书的关系。
@@ -57,7 +57,7 @@ class User:
 class Store:
     _uid, # mongodb 默认建立
     # (sid, bid)上建立复合索引
-    sid = _uid,
+    sid,
     bid,
     stock_level,
     price, # 定价
@@ -74,7 +74,7 @@ class Store:
 ```
 class Order:
     _uid, # mongodb 默认建立
-    oid = _uid
+    oid
     uid # 买家uid
     sid # 书店id
     # 以及一些其它的信息，没想好
