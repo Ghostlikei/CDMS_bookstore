@@ -28,6 +28,7 @@ class Seller(db_conn.DBConn):
 
             store_collection = self.db["store"]
             store_data = {
+                "owner": user_id,
                 "sid": store_id,
                 "bid": book_id,
                 # "book_info": 'str',

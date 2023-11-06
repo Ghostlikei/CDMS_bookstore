@@ -66,8 +66,8 @@ class Store:
 
 ```
 class Order:
-    _uid, # mongodb 默认建立 ?
-    oid # 由python的uuid4方法随机生成
+    _uid, 
+    oid # 在此处oid=uid，uid由用户，商店和随机生成的字符串组成
     uid # 买家uid
     sid # 书店id
     # 以及一些其它的信息，没想好
