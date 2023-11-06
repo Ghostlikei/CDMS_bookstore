@@ -1,5 +1,6 @@
 # import sqlite3 as sqlite
 import pymongo
+from pymongo.errors import PyMongoError
 
 import uuid
 import json
@@ -19,7 +20,8 @@ class Buyer(db_conn.DBConn):
         id_and_count: [(str, int)]
     ) -> (int, str, str):
         # return ()
-        order_id = ""
+        ## (TODO) Generate a random order id here
+        order_id = str(uuid.uuid4())
         try:
             if not self.user_id_exist(user_id):
                 return error.error_non_exist_user_id(user_id) + (order_id,)
@@ -65,8 +67,6 @@ class Buyer(db_conn.DBConn):
                     # No enough supplement
                     return error.error_stock_level_low(book_id) + (order_id,)
 
-                ### Here we need an extra query for Book collection
-                # (TODO)
                 price = single_store_info['price']
                 total_price += price * count
 
@@ -78,20 +78,41 @@ class Buyer(db_conn.DBConn):
                 if result.modified_count == 0:
                     return error.error_stock_level_low(book_id) + (order_id,)
 
-                self.conn.execute(
-                    "INSERT INTO new_order_detail(order_id, book_id, count, price) "
-                    "VALUES(?, ?, ?, ?);",
-                    (uid, book_id, count, price),
-                )
+                
+                # self.conn.execute(
+                #     "INSERT INTO new_order_detail(order_id, book_id, count, price) "
+                #     "VALUES(?, ?, ?, ?);",
+                #     (uid, book_id, count, price),
+                # )
 
-            self.conn.execute(
-                "INSERT INTO new_order(order_id, store_id, user_id) "
-                "VALUES(?, ?, ?);",
-                (uid, store_id, user_id),
-            )
-            self.conn.commit()
-            order_id = uid
-        except sqlite.Error as e:
+                order_details.append({
+                    "oid": order_id,
+                    "bid": book_id,
+                    "count": count,
+                    "price": price,
+                })
+
+
+            # self.conn.execute(
+            #     "INSERT INTO new_order(order_id, store_id, user_id) "
+            #     "VALUES(?, ?, ?);",
+            #     (uid, store_id, user_id),
+            # )
+            # self.conn.commit()
+            # order_id = uid
+            self.db.order.insert_one({
+                "_id": order_id,
+                "uid": user_id,
+                "sid": store_id,
+                "state": "Pending",  # assuming the initial state
+                "total_price": total_price,  # if you want to store total price
+            })
+
+            # Insert order details
+            if order_details:
+                self.db.order_detail.insert_many(order_details)
+
+        except PyMongoError as e:
             logging.info("528, {}".format(str(e)))
             return 528, "{}".format(str(e)), ""
         except BaseException as e:
