@@ -16,6 +16,7 @@ class Seller(db_conn.DBConn):
         book_id: str,
         book_info_str: str,
         stock_level: int,
+        price: float,
     ):
         try:
             if not self.user_id_exist(user_id):
@@ -31,6 +32,7 @@ class Seller(db_conn.DBConn):
                 "bid": book_id,
                 # "book_info": 'str',
                 "stock_level": stock_level,
+                "price": price,
             }
             store_collection.insert_one(store_data)
         except PyMongoError as e:
