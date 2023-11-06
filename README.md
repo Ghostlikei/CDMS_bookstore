@@ -66,12 +66,12 @@ class Store:
 
 ```
 class Order:
-    _uid, # mongodb 默认建立
-    oid = _uid
+    _uid, # mongodb 默认建立 ?
+    oid # 由python的uuid4方法随机生成
     uid # 买家uid
     sid # 书店id
     # 以及一些其它的信息，没想好
-    state, # 订单状态：待付款，待发货，待收货，已收货
+    state, # 订单状态：待付款(Pending)，待发货(ToShip)，待收货(Shipped)，已收货(Received)，已取消(Cancelled)
 ```
 
 ```
