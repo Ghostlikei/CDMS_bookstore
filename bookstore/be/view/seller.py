@@ -47,5 +47,11 @@ def add_stock_level():
 
 @bp_seller.route("/handle_order", methods=["POST"])
 def handle_order():
-    # todo
-    pass
+    user_id: str = request.json.get("user_id")
+    store_id: str = request.json.get("store_id")
+    order_id: str = request.json.get("order_id")
+
+    s = seller.Seller()
+    code, message = s.handle_order(user_id, store_id, order_id)
+
+    return jsonify({"message": message}), code
