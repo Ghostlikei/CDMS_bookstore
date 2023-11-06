@@ -16,7 +16,7 @@ mongosh mongodb://userName:daseCDMS2023@110.40.142.252:27017
 ## 数据库结构（暂行）
 
 在云服务器上有两个数据库`book`和`be`，与原代码中的含义一致，它们的结构如下：
-`book`数据库只有一个collection，`book`，它是`book_lx.db`的拷贝，其中的格式与`/bookstore/fe/access/book.py/Book`保持一致。
+`book`数据库只有一个collection，`book`，它是`book_lx.db`的拷贝，其中的格式与`/bookstore/fe/access/book.py/Book`保持一致。`book`数据库更多用于进行bench，而不在实际程序中使用。
 ```
 class Book:
     id: str
@@ -37,7 +37,7 @@ class Book:
     pictures: [bytes]
 ```
 
-`be`数据库比较复杂，它包含这么几个collection，分别是`user`, `store`, `order`, `order_detail`,`order_archive`具体为
+`be`数据库比较复杂，它包含这么几个collection，分别是`user`, `store`, `order`, `order_detail`,`order_archive`，`book`具体为
 ```
 class User:
     _uid, # mongodb 默认建立
@@ -48,8 +48,8 @@ class User:
     token,
     terminal,
     sid, # 目前不清楚一个用户是否能开多个书店，暂定只能开一个书店，这一项为null或store的sid
-    orders, # 未完成的订单
-    oldOrders, # 已完成的订单
+    orders, # 未完成的订单，存储oid
+    oldOrders, # 已完成的订单，存储oid
 ```
 
 `store`集合虽然看起来叫书店，但其实是用来表示书店和书的关系。
@@ -57,10 +57,17 @@ class User:
 class Store:
     _uid, # mongodb 默认建立
     # (sid, bid)上建立复合索引
-    sid = _uid,
+    sid,
     bid,
     stock_level,
+    price, # 定价
     owner # 拥有者的用户uid
+    # 以及书本的元数据，包括：
+    title,
+    tags,
+    catelog,
+    content,
+    # 以上元数据建立全文索引
 ```
 也可以在`store`中用一个列表存放所有的书本，但我觉得这样的方法可以保证上架/下架商品的CRUD操作更快。
 
