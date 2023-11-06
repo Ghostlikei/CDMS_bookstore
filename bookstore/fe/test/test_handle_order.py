@@ -9,7 +9,7 @@ class TestHandleOrder:
     def pre_run_initialization(self):
         self.buyer_id = "test_handle_order_user_{}".format(str(uuid.uuid1()))
         self.store_id = "test_handle_order_store_{}".format(str(uuid.uuid1()))
-        self.seller_id = "test_handle_order_store_{}".format(str(uuid.uuid1()))
+        self.seller_id = "test_handle_order_seller_{}".format(str(uuid.uuid1()))
         self.password = self.buyer_id
         self.buyer = register_new_buyer(self.buyer_id, self.password)
         self.gen_book = GenBook(self.seller_id, self.store_id)
