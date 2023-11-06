@@ -19,6 +19,10 @@ class TestHandleOrder:
         code, order_id = self.buyer.new_order(self.store_id, buy_book_list)
         assert code == 200
         self.order_id = order_id
+        code = self.buyer.add_funds(100000000000)
+        assert code == 200
+        code = self.buyer.payment(self.order_id)
+        assert code == 200
         yield
 
     # note user_id is seller_id
