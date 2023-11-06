@@ -1,7 +1,5 @@
 ## 创建商铺
 
-
-
 #### URL
 
 POST http://[address]/seller/create_store
@@ -176,3 +174,49 @@ Status Code:
 200 | 创建商铺成功
 5XX | 商铺ID不存在 
 5XX | 图书ID不存在 
+
+## 商家发货订单
+
+
+#### URL
+
+POST http://[address]/seller/handle_order
+
+#### Request
+Headers:
+
+key | 类型 | 描述 | 是否可为空
+---|---|---|---
+token | string | 登录产生的会话标识 | N
+
+Body:
+
+```json
+{
+  "user_id": "$seller id$",
+  "store_id": "$store id$",
+  "order_id": "$order id$",
+}
+```
+key | 类型 | 描述 | 是否可为空
+---|---|---|---
+user_id | string | 卖家用户ID | N
+store_id | string | 商铺ID | N
+order_id | string | 订单ID | N
+
+#### Response
+
+Status Code:
+
+码 | 描述
+--- | :--
+200 | 创建商铺成功
+5XX | 商铺ID不存在 
+5XX | 图书ID不存在 
+5XX | 订单状态错误
+
+##### Body:
+```json
+{
+  "message": "message"
+}

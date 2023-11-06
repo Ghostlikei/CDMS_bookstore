@@ -76,7 +76,7 @@ class Order:
     _uid, 
     oid # 在此处oid=uid，uid由用户，商店和随机生成的字符串组成
     uid # 买家uid
-    sid # 书店id
+    sid # 书店id，建立索引
     # 以及一些其它的信息，没想好
     state, # 订单状态：待付款(Pending)，待发货(ToShip)，待收货(Shipped)，已收货(Received)，已取消(Cancelled)
 ```

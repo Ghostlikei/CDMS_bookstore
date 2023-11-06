@@ -1,5 +1,4 @@
 import logging
-import os
 import sqlite3 as sqlite
 from pymongo import MongoClient
 

@@ -40,3 +40,18 @@ def add_funds():
     b = Buyer()
     code, message = b.add_funds(user_id, password, add_value)
     return jsonify({"message": message}), code
+
+@bp_buyer.route("/confirm", methods=["POST"])
+def confirm():
+    # todo()
+    pass
+
+@bp_buyer.route("/list_orders", methods=["POST"])
+def list_orders():
+    # todo()
+    pass
+
+@bp_buyer.route("/cancel", methods=["POST"])
+def cancel():
+    # todo()
+    pass
