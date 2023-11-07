@@ -8,22 +8,22 @@ from fe.access.search import Search
 class TestSearch:
     @pytest.fixture(autouse=True)
     def pre_run_initialization(self):
-        self.user_id = "test_search_{}".format(str(uuid.uuid1()))
+        self.user_id = "test_search_user_id_{}".format(str(uuid.uuid1()))
         self.password = self.user_id
         self.buyer = register_new_buyer(self.user_id, self.password)
-        self.store_id = "test_search_id_{}".format(str(uuid.uuid1()))
+        self.store_id = "test_search_store_id_{}".format(str(uuid.uuid1()))
+        self.seller_id = "test_search_seller_id_{}".format(str(uuid.uuid1()))
         self.gen_book = GenBook(self.seller_id, self.store_id)
-        ok, book_list = GenBook.gen(non_exist_book_id=False, low_stock_level=False)
+        ok, book_list = self.gen_book.blg(non_exist_book_id=False, low_stock_level=False)
+        print(book_list)
         assert ok
-        search = Search()
+        URL = "http://127.0.0.1:5000/"
+        self.search = Search(url_prefix = URL)
         yield
 
-    def test_store_search_books(self):
+    def test_store_title_search_books(self):
         search_parameters = {
-            "title": "1",
-            "tags": "2",
-            "catalog": "3",
-            "content": "4",
+            "title": "三毛流浪记全集",
             "scope": self.store_id
         }
         page = 1
@@ -33,23 +33,38 @@ class TestSearch:
 
     def test_all_search_books(self):
         search_parameters = {
-            "title": "1",
-            "tags": "2",
-            "catalog": "3",
-            "content": "4",
+            "title": "三毛流浪记（全集）",
         }
         page = 1
         result_per_page = 10
         status_code, response = self.search.search(search_parameters, page, result_per_page)
         assert status_code == 200
 
+    def test_store_tags_search_books(self):
+        search_parameters = {
+            "tags":  ['漫画', '三毛', '张乐平', '童年', '中国漫画', '经典', '绘本', '中国'],
+            "scope": self.store_id
+        }
+        page = 1
+        result_per_page = 10
+        status_code,response = self.search.search(search_parameters, page, result_per_page)
+        assert status_code == 200
+
+    def test_store_content_search_books(self):
+        search_parameters = {
+        "content": "出版前言",
+        "scope": self.store_id
+        }
+        page = 1
+        result_per_page = 10
+        status_code, response = self.search.search(search_parameters, page, result_per_page)
+        assert status_code == 200
+    
+
     def test_search_nonexistent_store(self):
         self.store_id = self.store_id + "_x"
         search_parameters = {
-            "title": "1",
-            "tags": "2",
-            "catalog": "3",
-            "content": "4",
+            "title": "三毛流浪记（全集）",
             "scope": self.store_id
         }
         page = 1
