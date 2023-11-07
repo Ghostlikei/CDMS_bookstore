@@ -13,7 +13,7 @@ class TestConfirm:
         self.seller_id = "test_confirm_seller_id_{}".format(str(uuid.uuid1()))
         self.store_id = "test_confirm_store_id_{}".format(str(uuid.uuid1()))
         self.gen_book = GenBook(self.seller_id, self.store_id)
-        ok, buy_book_list = GenBook.gen(non_exist_book_id=False, low_stock_level=False)
+        ok, buy_book_list = self.gen_book.gen(non_exist_book_id=False, low_stock_level=False)
         assert ok
         status_code, self.order_id = self.buyer.new_order(self.store_id, buy_book_list)
         assert status_code == 200
