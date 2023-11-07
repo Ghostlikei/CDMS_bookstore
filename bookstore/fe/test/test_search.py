@@ -4,7 +4,7 @@ import uuid
 from fe.access.new_buyer import register_new_buyer
 from fe.test.gen_book_data import GenBook
 from fe.access.search import Search
-
+import fe.conf
 class TestSearch:
     @pytest.fixture(autouse=True)
     def pre_run_initialization(self):
@@ -17,8 +17,8 @@ class TestSearch:
         ok, book_list = self.gen_book.blg(non_exist_book_id=False, low_stock_level=False)
         print(book_list)
         assert ok
-        URL = "http://127.0.0.1:5000/"
-        self.search = Search(url_prefix = URL)
+        url = fe.conf.URL
+        self.search = Search(url_prefix = url)
         yield
 
     def test_store_title_search_books(self):
