@@ -30,7 +30,7 @@ class Search(db_conn.DBConn):
         if title is not None:
             condition_list.append({"title": re.compile(title)})
         if tags is not None:
-            condition_list.append({"tags": self._regexp_tags(tags)})
+            condition_list.append({"tags": {"$in": tags}})
         if content is not None:
             condition_list.append({"content": re.compile(title)})
         if len(condition_list) == 0:
