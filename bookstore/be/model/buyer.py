@@ -231,5 +231,36 @@ class Buyer(db_conn.DBConn):
         return 200, "ok", []
     
     def cancel(self, user_id: str, password: str, order_id: str) -> (int, str):
+        try:          
+            order_collection = self.db["order"]
+            user_collection = self.db["user"]
+            
+            # Check if the order exists
+            order = order_collection.find_one({"oid": order_id})
+            if order is None:
+                return error.error_invalid_order_id(order_id)
+            
+            if order["uid"] != user_id:
+                return error.error_authorization_fail()
+            
+            # Validate user credentials and get user's balance
+            user = user_collection.find_one({"uid": user_id})
+            if user is None or user["password"] != password:
+                return error.error_authorization_fail()
+            
+            # set the state of `order` to be Received
+            update_result = order_collection.update_one(
+                {"oid": order_id}, 
+                {"$set": {"state": "Cancelled"}})
+            
+            if update_result.modified_count == 0:
+                raise pymongo.errors.OperationFailure("Order update failed")
+
+        except PyMongoError as e:
+            logging.info("528, {}".format(str(e)))
+            return 528, "{}".format(str(e))
+        except BaseException as e:
+            logging.info("530, {}".format(str(e)))
+            return 530, "{}".format(str(e))
         return 200, "ok"
 
