@@ -43,15 +43,30 @@ def add_funds():
 
 @bp_buyer.route("/confirm", methods=["POST"])
 def confirm():
-    # todo()
+    user_id = request.json.get("user_id")
+    password = request.json.get("password")
+    order_id = request.json.get("order_id")
+    b = Buyer()
+    code, message = b.confirm(user_id, password, order_id)
+    return jsonify({"message": message}), code
     pass
 
 @bp_buyer.route("/list_orders", methods=["POST"])
 def list_orders():
-    # todo()
+    user_id = request.json.get("user_id")
+    password = request.json.get("password")
+    b = Buyer()
+    code, message, orders = b.list_orders(user_id, password)
+    return jsonify({"message": message, "orders": orders}), code
     pass
 
 @bp_buyer.route("/cancel", methods=["POST"])
 def cancel():
     # todo()
+    user_id = request.json.get("user_id")
+    password = request.json.get("password")
+    order_id = request.json.get("order_id")
+    b = Buyer()
+    code, message = b.cancel(user_id, password, order_id)
+    return jsonify({"message": message}), code
     pass

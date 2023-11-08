@@ -12,8 +12,8 @@ class TestListOrder:
         self.password = self.user_id
         self.buyer = register_new_buyer(self.user_id, self.password)
         # prepare store
-        self.seller_id = "test_new_order_seller_id_{}".format(str(uuid.uuid1()))
-        self.store_id = "test_new_order_store_id_{}".format(str(uuid.uuid1()))
+        self.seller_id = "test_list_order_seller_id_{}".format(str(uuid.uuid1()))
+        self.store_id = "test_list_order_store_id_{}".format(str(uuid.uuid1()))
         self.gen_book = GenBook(self.seller_id, self.store_id)
         
         # add orders in advance
