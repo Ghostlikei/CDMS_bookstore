@@ -19,12 +19,16 @@ class TestCancel:
         assert ok
         status_code,self.order_id = self.buyer.new_order(self.store_id,buy_book_list)
         assert status_code == 200
+        code = self.buyer.add_funds(100000000000)
+        assert code == 200
+        code = self.buyer.payment(self.order_id)
+        assert code == 200
         yield
 
     def test_ok(self):
         code = self.buyer.cancel(self.order_id)
         assert code == 200
-        # todo ;add status
+
     def test_error_user_id(self):
         self.buyer.user_id = self.buyer.user_id + "_x"
         code = self.buyer.cancel(self.order_id)
