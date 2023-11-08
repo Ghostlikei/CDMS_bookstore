@@ -340,6 +340,46 @@ class Buyer(db_conn.DBConn):
         return 200, "ok"
     
     def confirm(self, user_id: str, password: str, order_id: str) -> (int, str):
+        """
+        1. Check userid, password, orderid
+        2. Check order state, is it Shipped or not?
+        3. Set order state to be Received.
+
+        """
+        try:          
+            order_collection = self.db["order"]
+            user_collection = self.db["user"]
+            
+            # Check if the order exists
+            order = order_collection.find_one({"oid": order_id})
+            if order is None:
+                return error.error_invalid_order_id(order_id)
+            
+            if order["uid"] != user_id:
+                return error.error_authorization_fail()
+            
+            if order["state"] != "Shipped":
+                return error.error_wrong_state(order_id)
+            
+            # Validate user credentials and get user's balance
+            user = user_collection.find_one({"uid": user_id})
+            if user is None or user["password"] != password:
+                return error.error_authorization_fail()
+            
+            # set the state of `order` to be Received
+            update_result = order_collection.update_one(
+                {"oid": order_id}, 
+                {"$set": {"state": "Received"}})
+            
+            if update_result.modified_count == 0:
+                raise pymongo.errors.OperationFailure("Order update failed")
+
+        except PyMongoError as e:
+            logging.info("528, {}".format(str(e)))
+            return 528, "{}".format(str(e))
+        except BaseException as e:
+            logging.info("530, {}".format(str(e)))
+            return 530, "{}".format(str(e))
         return 200, "ok"
     
     def list_orders(self, user_id: str, password: str) -> (int, str, list):
