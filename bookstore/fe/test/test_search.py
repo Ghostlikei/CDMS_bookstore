@@ -52,8 +52,8 @@ class TestSearch:
 
     def test_store_content_search_books(self):
         search_parameters = {
-        "content": "出版前言",
-        "scope": self.store_id
+            "content": "出版前言",
+            "scope": self.store_id
         }
         page = 1
         result_per_page = 10
@@ -72,5 +72,5 @@ class TestSearch:
 
         status_code, response = self.search.search(search_parameters, page, result_per_page)
 
-        assert response.status_code == 513
+        assert status_code == 513
 

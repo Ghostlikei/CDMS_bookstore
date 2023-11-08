@@ -19,7 +19,7 @@ class Search(db_conn.DBConn):
         title = parameters.get("title", None)
         tags = parameters.get("tags", None)
         content = parameters.get("content", None)
-        
+        print(content)
         # build query
         condition_list = []
         if store_id is not None:
@@ -32,7 +32,7 @@ class Search(db_conn.DBConn):
         if tags is not None:
             condition_list.append({"tags": {"$in": tags}})
         if content is not None:
-            condition_list.append({"content": re.compile(title)})
+            condition_list.append({"content": re.compile(content)})
         if len(condition_list) == 0:
             return error.error_empty_search_parameters()
         query = {"$and": condition_list}
