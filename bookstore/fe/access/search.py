@@ -1,8 +1,9 @@
 import requests
+from urllib.parse import urljoin
 
 class Search:
     def __init__(self, url_prefix):
-        self.url_prefix = url_prefix
+        self.url_prefix = urljoin(url_prefix, "search")
     
     def search(self, parameters, page, result_per_page) -> int:
         json = {

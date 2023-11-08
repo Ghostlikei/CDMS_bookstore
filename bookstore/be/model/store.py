@@ -13,12 +13,13 @@ class Store:
         self.init_tables()
 
     def init_tables(self):
-        collections = ["user", "store", "order", "order_detail"]
+        collections = ["user", "store", "order", "order_detail", "order_archive"]
         indexs = {
-            "user": 'uid',
-            "store": ['sid', 'bid'],
-            "order": 'oid',
-            "order_detail": ['oid', 'bid']
+            "user": ['uid'],
+            "store": [['sid', 'bid']],
+            "order": ['oid', 'sid', 'uid'],
+            "order_detail": [['oid', 'bid']],
+            "order_archive": ['oid', 'sid', 'uid']
         }
         client = self.get_db_conn()
         db = client[self.database]
@@ -34,7 +35,10 @@ class Store:
                             db.create_collection(collection)
                             index = indexs.get(collection, None)
                             if index is not None:
-                                db[collection].create_index(index, unique = True)
+                                for idx, ii in enumerate(index):
+                                    isUnique = False
+                                    if idx == 0: isUnique = True
+                                    db[collection].create_index(ii, unique=isUnique)
                         else:
                             logging.info(f"collection {collection} already exist")
                     session.commit_transaction()

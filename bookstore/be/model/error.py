@@ -9,7 +9,7 @@ error_code = {
     517: "stock level low, book id {}",
     518: "invalid order id {}",
     519: "not sufficient funds, order id {}",
-    520: "",
+    520: "empty search parameters",
     521: "",
     522: "",
     523: "",
@@ -62,6 +62,8 @@ def error_wrong_state(order_id):
 def error_authorization_fail():
     return 401, error_code[401]
 
+def error_empty_search_parameters():
+    return 520, error_code[520], []
 
 def error_and_message(code, message):
     return code, message
