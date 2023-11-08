@@ -125,7 +125,6 @@ class Buyer(db_conn.DBConn):
         return 200, "ok", order_id
 
     def payment(self, user_id: str, password: str, order_id: str) -> (int, str):
-        ## (TODO) 
         # conn = self.conn
         # try:
         #     cursor = conn.execute(
@@ -338,5 +337,14 @@ class Buyer(db_conn.DBConn):
         except BaseException as e:
             return 530, "{}".format(str(e))
 
+        return 200, "ok"
+    
+    def confirm(self, user_id: str, password: str, order_id: str) -> (int, str):
+        return 200, "ok"
+    
+    def list_orders(self, user_id: str, password: str) -> (int, str, list):
+        return 200, "ok", []
+    
+    def cancel(self, user_id: str, password: str, order_id: str) -> (int, str):
         return 200, "ok"
 
