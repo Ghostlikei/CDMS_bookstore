@@ -2,6 +2,7 @@
 from be.model import error
 from be.model import db_conn
 from pymongo.errors import PyMongoError
+import pymongo
 
 class Seller(db_conn.DBConn):
     def __init__(self):
@@ -16,6 +17,9 @@ class Seller(db_conn.DBConn):
         book_info_str: str,
         stock_level: int,
         price: float,
+        title: str,
+        content: str,
+        tags: str,
     ):
         try:
             if not self.user_id_exist(user_id):
@@ -33,6 +37,9 @@ class Seller(db_conn.DBConn):
                 # "book_info": 'str',
                 "stock_level": stock_level,
                 "price": price,
+                "title": title,
+                "content": content,
+                "tags": tags,
             }
             store_collection.insert_one(store_data)
         except PyMongoError as e:
@@ -88,11 +95,18 @@ class Seller(db_conn.DBConn):
                 print(f"eo: {order_id}")
                 return error.error_invalid_order_id(order_id)
             order_collection = self.db["order"]
-            query = {"state": "ToShip"}
-            update = {"$set": {"state": "Shipped"}}
-            result = order_collection.update_many(query, update)
-            if result.modified_count > 0:
-                return 200, "ok"
+            desired_state = "ToShip"
+            order = order_collection.find_one({"oid": order_id})
+            if order["state"] == desired_state:
+                # 更新状态为Shipped
+                update_result = order_collection.update_one(
+                    {"oid": order_id},
+                    {"$set": {"state": "Shipped"}}
+                )
+                if update_result.modified_count > 0:
+                    return 200 , "ok"
+                else:
+                    raise pymongo.errors.OperationFailure("Order update failed")
             else:
                 return error.error_wrong_state(order_id)
         except PyMongoError as e:
