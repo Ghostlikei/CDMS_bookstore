@@ -20,7 +20,7 @@ def seller_create_store():
 def seller_add_book():
     user_id: str = request.json.get("user_id")
     store_id: str = request.json.get("store_id")
-    book_info: str = request.json.get("book_info")
+    book_info = request.json.get("book_info")
     stock_level: str = request.json.get("stock_level", 0)
     # book_info = dict(book_info)
     id = book_info.get("id")
