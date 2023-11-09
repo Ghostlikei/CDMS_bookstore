@@ -233,8 +233,44 @@ class Buyer(db_conn.DBConn):
             return 530, "{}".format(str(e))
         return 200, "ok"
     
-    def list_orders(self, user_id: str, password: str) -> (int, str, list):
-        return 200, "ok", []
+    def list_orders(self, user_id: str, password: str, tle=30) -> (int, str, list):
+        """
+        list orders from collection `order` and `order archive`
+        """
+        try:
+            result = []
+
+            order_collection = self.db["order"]
+            order_archive_collection = self.db["order_archive"]
+            user_collection = self.db["user"]
+            
+            user = user_collection.find_one({"uid": user_id})
+            if user is None or user["password"] != password:
+                return error.error_authorization_fail()
+
+            current_time = datetime.now()
+
+            # Check all orders in order collection where uid = user_id
+            orders = order_collection.find({"uid": user_id})
+            for order in orders:
+                # Check for TLE
+                if 'time' in order and current_time - order['time'] > timedelta(seconds=tle):
+                    self.archiveOrder(order['oid'], "Cancelled")  # Archive the order
+                    continue  # Do not add TLE orders to the result
+                result.append(order)  # Append non-TLE orders to result
+
+            # Check all orders in order_archive collection where uid = user_id
+            archived_orders = order_archive_collection.find({"uid": user_id})
+            for archived_order in archived_orders:
+                result.append(archived_order)  # Append all archived orders to result            
+
+        except PyMongoError as e:
+            logging.info("528, {}".format(str(e)))
+            return 528, "{}".format(str(e)), []
+        except BaseException as e:
+            logging.info("530, {}".format(str(e)))
+            return 530, "{}".format(str(e)), []
+        return 200, "ok", result
     
     def cancel(self, user_id: str, password: str, order_id: str) -> (int, str):
         try:          
