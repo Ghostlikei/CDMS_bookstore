@@ -2,7 +2,7 @@
 
 ## 小组成员及其分工：
 
-10215501402 廖翔 ：前60%中的`seller`接口内容；后40%中`handle_order`函数实现，以及`cancel`,`confirm`,`search` 的`test`测试
+10215501402 廖翔 ：前60%中的`seller`接口的改写与数据库基本操作的改写；后40%中`handle_order`函数实现，以及`cancel`,`confirm`,`search` 的`test`测试
 
 10215501403 沈桐乐：前60%buyer接口的改写，参与数据库结构的设计，后40%订单查询，主动取消定单，超时订单自动取消，确认订单，修改buyer接口的测试用例
 
@@ -146,6 +146,7 @@ class Order:
     sid # 书店id，建立索引
     state, # 订单状态：待付款(Pending)，待发货(ToShip)，待收货(Shipped)
     total_price, # 订单总价
+    time, # 下单时间
 class OrderDetail:
     # (oid, bid)建立复合索引
     oid,
@@ -164,9 +165,9 @@ class OrderArchive:
     oid # 和Order一致
     uid # 买家uid
     sid # 书店id，建立索引
-    # 以及一些其它的信息，没想好
     state, # 订单状态：已收货(Received)，已取消(Cancelled)
     total_price, # 订单总价
+    time, # 下单时间
 ```
 
 将未完成的订单与已完成的订单分别存储的原因基于下面的事实：
