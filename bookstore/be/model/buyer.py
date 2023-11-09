@@ -4,10 +4,10 @@ from pymongo.errors import PyMongoError
 
 import uuid
 import json
+from datetime import datetime, timedelta
 import logging
 from be.model import db_conn
 from be.model import error
-
 
 class Buyer(db_conn.DBConn):
     def __init__(self):
@@ -65,6 +65,7 @@ class Buyer(db_conn.DBConn):
                 "sid": store_id,
                 "state": "Pending",  # assuming the initial state
                 "total_price": total_price,  # if you want to store total price
+                "time": datetime.now()
             })
 
             # Insert order details
@@ -80,7 +81,7 @@ class Buyer(db_conn.DBConn):
 
         return 200, "ok", order_id
 
-    def payment(self, user_id: str, password: str, order_id: str) -> (int, str):
+    def payment(self, user_id: str, password: str, order_id: str, tle = 30) -> (int, str):
         try:
             order_collection = self.db["order"]
             user_collection = self.db["user"]
@@ -109,6 +110,11 @@ class Buyer(db_conn.DBConn):
             # Check if the seller exists
             if not self.user_id_exist(seller_id):
                 return error.error_non_exist_user_id(seller_id)
+            
+            # Check whether the order is TLE
+            if datetime.now() - order['time'] > timedelta(seconds=tle):
+                self.archiveOrder(order_id, "Cancelled") 
+                return error.error_time_limit_exceed(order_id)
 
             # Calculate total price
             total_price = order.get("total_price", 0)
@@ -212,12 +218,13 @@ class Buyer(db_conn.DBConn):
                 return error.error_authorization_fail()
             
             # set the state of `order` to be Received
-            update_result = order_collection.update_one(
-                {"oid": order_id}, 
-                {"$set": {"state": "Received"}})
+            # update_result = order_collection.update_one(
+            #     {"oid": order_id}, 
+            #     {"$set": {"state": "Received"}})
             
-            if update_result.modified_count == 0:
-                raise pymongo.errors.OperationFailure("Order update failed")
+            # if update_result.modified_count == 0:
+            #     raise pymongo.errors.OperationFailure("Order update failed")
+            self.archiveOrder(order_id, "Received")
 
         except PyMongoError as e:
             logging.info("528, {}".format(str(e)))
@@ -227,8 +234,62 @@ class Buyer(db_conn.DBConn):
             return 530, "{}".format(str(e))
         return 200, "ok"
     
-    def list_orders(self, user_id: str, password: str) -> (int, str, list):
-        return 200, "ok", []
+    def list_orders(self, user_id: str, password: str, tle=30) -> (int, str, list):
+        """
+        list orders from collection `order` and `order archive`
+        """
+        try:
+            result = []
+
+            order_collection = self.db["order"]
+            order_archive_collection = self.db["order_archive"]
+            user_collection = self.db["user"]
+            
+            user = user_collection.find_one({"uid": user_id})
+            if user is None or user["password"] != password:
+                return error.error_authorization_fail() + (result,)
+
+            current_time = datetime.now()
+
+            # Check all orders in order collection where uid = user_id
+            orders = order_collection.find({"uid": user_id})
+            for order in orders:
+                # Check for TLE
+                if 'time' in order and current_time - order['time'] > timedelta(seconds=tle):
+                    self.archiveOrder(order['oid'], "Cancelled")  # Archive the order
+                    continue  # Do not add TLE orders to the result
+                # print("###########ORDER INFO############: ", order)
+                output = {
+                    "oid": order["oid"],
+                    "uid": order["uid"],
+                    "sid": order["sid"],
+                    "state": order["state"],
+                    "total_price": order["total_price"],
+                    "time": order["time"],
+                }
+                result.append(output)  # Append non-TLE orders to result
+
+            # Check all orders in order_archive collection where uid = user_id
+            archived_orders = order_archive_collection.find({"uid": user_id})
+            for archived_order in archived_orders:
+                # print("###########ORDER INFO############: ", archived_order)
+                output = {
+                    "oid": archived_order["oid"],
+                    "uid": archived_order["uid"],
+                    "sid": archived_order["sid"],
+                    "state": archived_order["state"],
+                    "total_price": archived_order["total_price"],
+                    "time": archived_order["time"],
+                }
+                result.append(output)  # Append all archived orders to result            
+
+        except PyMongoError as e:
+            logging.info("528, {}".format(str(e)))
+            return 528, "{}".format(str(e)), []
+        except BaseException as e:
+            logging.info("530, {}".format(str(e)))
+            return 530, "{}".format(str(e)), []
+        return 200, "ok", result
     
     def cancel(self, user_id: str, password: str, order_id: str) -> (int, str):
         try:          
@@ -248,13 +309,14 @@ class Buyer(db_conn.DBConn):
             if user is None or user["password"] != password:
                 return error.error_authorization_fail()
             
-            # set the state of `order` to be Received
-            update_result = order_collection.update_one(
-                {"oid": order_id}, 
-                {"$set": {"state": "Cancelled"}})
+            self.archiveOrder(order_id, "Cancelled")
+            # # set the state of `order` to be Received
+            # update_result = order_collection.update_one(
+            #     {"oid": order_id}, 
+            #     {"$set": {"state": "Cancelled"}})
             
-            if update_result.modified_count == 0:
-                raise pymongo.errors.OperationFailure("Order update failed")
+            # if update_result.modified_count == 0:
+            #     raise pymongo.errors.OperationFailure("Order update failed")
 
         except PyMongoError as e:
             logging.info("528, {}".format(str(e)))
@@ -264,3 +326,27 @@ class Buyer(db_conn.DBConn):
             return 530, "{}".format(str(e))
         return 200, "ok"
 
+    def archiveOrder(self, oid, state) -> None:
+        try:
+            assert state in ["Cancelled", "Received"]
+            order_collection = self.db["order"]
+            order_archive_collection = self.db["order_archive"]
+            
+            order_info = order_collection.find_one({"oid": oid})
+            if order_info is None:
+                raise PyMongoError(f"No order found with oid: {oid}")
+            
+            archived_order = order_info.copy()
+            archived_order["state"] = state
+            
+            order_archive_collection.insert_one(archived_order)
+            
+            order_collection.delete_one({"oid": oid})
+            pass
+        except PyMongoError as e:
+            logging.info("528, {}".format(str(e)))
+            return
+        except BaseException as e:
+            logging.info("530, {}".format(str(e)))
+            return
+        return
