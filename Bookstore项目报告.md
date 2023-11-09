@@ -105,6 +105,9 @@
 ### 3.2  Seller接口：
 
 #### 3.2.1 add_book:
+
+**传入：**书本信息	**作用：**将书本信息存入`["store"]`中
+
 - ##### be/model：
 
   在数据库`be.store`中添加书本的内容（所有者id，商店id，书本id，库存数量，价格，标题，内容，标签）
@@ -113,16 +116,19 @@
 
 - ##### be/view：
 
-  
+  修改了`book_info`的属性（为`dict`而不是`str`），而后使用`.get()`在`book_info`获取`(id,price,title,content,tags)`内容添加到`message`中
 
 - ##### be/access：
 
-  
+  使用POST方法将`json`数据传入相对应的url
 
 #### 3.2.2 add_stock_level:
+
+**传入：** 用户id，商店id，书本id，增加库存数量	**作用：**对于相应的书本增加库存
+
 - ##### be/model：
 
-  
+  使用`update_one`和`$inc`函数对于对应的`store_id`和`book_id`的`stock_level`都进行相对应的添加
 
 - ##### be/view：
 
