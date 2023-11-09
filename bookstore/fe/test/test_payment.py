@@ -1,3 +1,5 @@
+import time
+
 import pytest
 
 from fe.access.buyer import Buyer
@@ -70,3 +72,10 @@ class TestPayment:
 
         code = self.buyer.payment(self.order_id)
         assert code != 200
+
+    def test_payment_overtime(self):
+        code = self.buyer.add_funds(self.total_price)
+        assert code == 200
+        time.sleep(40)
+        code = self.buyer.payment(self.order_id)
+        assert code == 522
