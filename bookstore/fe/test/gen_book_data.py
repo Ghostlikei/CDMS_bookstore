@@ -58,15 +58,12 @@ class GenBook:
             self.buy_book_id_list.append((item[0].id, item[1]))
         return ok, self.buy_book_id_list
 
-    def blg(self, non_exist_book_id: bool, low_stock_level, max_book_count: int = 100
+    def blg(self, non_exist_book_id: bool, low_stock_level
     ) -> (bool, []):
         self.__init_book_list__()
         ok = True
         book_db = book.BookDB()
-        rows = book_db.get_book_count()
         start = 0
-        if rows > max_book_count:
-            start = random.randint(0, rows - max_book_count)
         size = 10
         books = book_db.get_book_info(start, size)
         book_id_exist = []

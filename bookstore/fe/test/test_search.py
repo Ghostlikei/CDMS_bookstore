@@ -14,8 +14,7 @@ class TestSearch:
         self.store_id = "test_search_store_id_{}".format(str(uuid.uuid1()))
         self.seller_id = "test_search_seller_id_{}".format(str(uuid.uuid1()))
         self.gen_book = GenBook(self.seller_id, self.store_id)
-        ok, book_list = self.gen_book.blg(non_exist_book_id=False, low_stock_level=False)
-        print(book_list)
+        ok, _ = self.gen_book.blg(non_exist_book_id=False, low_stock_level=False)
         assert ok
         url = fe.conf.URL
         self.search = Search(url_prefix = url)
@@ -33,6 +32,7 @@ class TestSearch:
         # check status
         assert status_code == 200
         # check correct response
+        assert len(response) != 0
         for result in response:
             pattern = re.compile("三毛流浪记全集")
             assert re.match(pattern, result["title"])
@@ -46,6 +46,7 @@ class TestSearch:
         result_per_page = 10
         status_code, response = self.search.search(search_parameters, page, result_per_page)
         assert status_code == 200
+        assert len(response) != 0
         for result in response:
             pattern = re.compile("三毛流浪记（全集）")
             assert re.match(pattern, result["title"])
@@ -59,6 +60,7 @@ class TestSearch:
         result_per_page = 10
         status_code,response = self.search.search(search_parameters, page, result_per_page)
         assert status_code == 200
+        assert len(response) != 0
         for result in response:
             tag = '漫画'
             print(result)
@@ -73,6 +75,7 @@ class TestSearch:
         result_per_page = 10
         status_code, response = self.search.search(search_parameters, page, result_per_page)
         assert status_code == 200
+        assert len(response) != 0
         
     
 
