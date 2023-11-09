@@ -3,6 +3,7 @@ from be.model import error
 from be.model import db_conn
 from pymongo.errors import PyMongoError
 import pymongo
+import jieba
 
 class Seller(db_conn.DBConn):
     def __init__(self):
@@ -28,7 +29,10 @@ class Seller(db_conn.DBConn):
                 return error.error_non_exist_store_id(store_id)
             if self.book_id_exist(store_id, book_id):
                 return error.error_exist_book_id(book_id)
-
+            
+            content_words = jieba.lcut_for_search(content)
+            content_segmented = " ".join(content_words)
+            
             store_collection = self.db["store"]
             store_data = {
                 "owner": user_id,
@@ -38,7 +42,7 @@ class Seller(db_conn.DBConn):
                 "stock_level": stock_level,
                 "price": price,
                 "title": title,
-                "content": content,
+                "content": content_segmented,
                 "tags": tags,
             }
             store_collection.insert_one(store_data)

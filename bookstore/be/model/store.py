@@ -1,5 +1,4 @@
 import logging
-import sqlite3 as sqlite
 from pymongo import MongoClient
 
 # 也许应当移动到配置文件中
@@ -8,15 +7,17 @@ connect_url = "mongodb://userName:daseCDMS2023@110.40.142.252:27017"
 class Store:
     database: str
 
-    def __init__(self, db_path):
+    def __init__(self, connect_url):
         self.database = "be"
+        print(connect_url)
+        self.client = MongoClient(connect_url)
         self.init_tables()
 
     def init_tables(self):
         collections = ["user", "store", "order", "order_detail", "order_archive"]
         indexs = {
             "user": ['uid'],
-            "store": [['sid', 'bid']],
+            "store": [['sid', 'bid'], [('content', "text")]],
             "order": ['oid', 'sid', 'uid'],
             "order_detail": [['oid', 'bid']],
             "order_archive": ['oid', 'sid', 'uid']
@@ -49,16 +50,15 @@ class Store:
                 pass
 
     def get_db_conn(self) -> MongoClient:
-        client = MongoClient(connect_url)
-        return client
+        return self.client
 
 
-database_instance: Store = Store("")
+database_instance: Store = Store(connect_url)
 
 
-def init_database(db_path):
+def init_database(connect_url):
     global database_instance
-    database_instance = Store(db_path)
+    database_instance = Store(connect_url)
 
 
 def get_db_conn():
