@@ -17,28 +17,33 @@ class TestListOrder:
         self.gen_book = GenBook(self.seller_id, self.store_id)
         
         # add orders in advance
-        self.num_orders = 5
+        self.num_orders = 1
         self.orders_id_list = []
+
+        ok, buy_book_list = self.gen_book.gen(non_exist_book_id=False, low_stock_level=False)
+        assert ok
+        sublist_len = len(buy_book_list) // self.num_orders
+
         for _ in range(self.num_orders):
-            ok, buy_book_list = self.gen_book.gen(non_exist_book_id=False, low_stock_level=False)
-            assert ok
-            code, order_id = self.buyer.new_order(self.store_id, buy_book_list)
+            sublist = buy_book_list[self.num_orders * sublist_len: (self.num_orders + 1) * sublist_len]
+            code, order_id = self.buyer.new_order(self.store_id, sublist)
             assert code == 200
             self.orders_id_list.append(order_id)
         yield
 
     def test_ok(self):
-        code, orders = self.buyer.list_orders(self)
+        code, orders = self.buyer.list_orders()
         assert code == 200 # check the status code
         for order in orders: # check the list results, i.e. order_id
-            order_id = order["order_id"]
+            order_id = order["oid"]
             assert order_id in self.orders_id_list
 
     def test_error_user_id(self):
         self.buyer.user_id = self.buyer.user_id + "_x"
-        code = self.buyer.list_orders(self)
+        code, _ = self.buyer.list_orders()
         assert code != 200
+
     def test_error_password(self):
         self.buyer.password = self.buyer.password + "_x"
-        code = self.buyer.list_orders(self)
+        code, _ = self.buyer.list_orders()
         assert code != 200

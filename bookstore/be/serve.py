@@ -11,6 +11,7 @@ from be.model.store import init_database
 
 bp_shutdown = Blueprint("shutdown", __name__)
 bp_test = Blueprint("test", __name__)
+connect_url = "mongodb://userName:daseCDMS2023@110.40.142.252:27017"
 
 def shutdown_server():
     func = request.environ.get("werkzeug.server.shutdown")
@@ -38,7 +39,7 @@ def be_run():
     this_path = os.path.dirname(__file__)
     parent_path = os.path.dirname(this_path)
     log_file = os.path.join(parent_path, "app.log")
-    init_database(parent_path)
+    init_database(connect_url)
 
     logging.basicConfig(filename=log_file, level=logging.ERROR)
     handler = logging.StreamHandler()
