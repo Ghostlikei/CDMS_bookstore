@@ -4,10 +4,10 @@ from pymongo.errors import PyMongoError
 
 import uuid
 import json
+from datetime import datetime, timedelta
 import logging
 from be.model import db_conn
 from be.model import error
-
 
 class Buyer(db_conn.DBConn):
     def __init__(self):
@@ -65,6 +65,7 @@ class Buyer(db_conn.DBConn):
                 "sid": store_id,
                 "state": "Pending",  # assuming the initial state
                 "total_price": total_price,  # if you want to store total price
+                "time": datetime.now()
             })
 
             # Insert order details
@@ -80,7 +81,7 @@ class Buyer(db_conn.DBConn):
 
         return 200, "ok", order_id
 
-    def payment(self, user_id: str, password: str, order_id: str) -> (int, str):
+    def payment(self, user_id: str, password: str, order_id: str, tle = 30) -> (int, str):
         try:
             order_collection = self.db["order"]
             user_collection = self.db["user"]
@@ -109,6 +110,11 @@ class Buyer(db_conn.DBConn):
             # Check if the seller exists
             if not self.user_id_exist(seller_id):
                 return error.error_non_exist_user_id(seller_id)
+            
+            # Check whether the order is TLE
+            if datetime.now() - order['time'] > timedelta(seconds=tle):
+                self.archiveOrder(order_id, "Cancelled") 
+                return error.error_time_limit_exceed(order_id)
 
             # Calculate total price
             total_price = order.get("total_price", 0)
@@ -264,3 +270,27 @@ class Buyer(db_conn.DBConn):
             return 530, "{}".format(str(e))
         return 200, "ok"
 
+    def archiveOrder(self, oid, state) -> None:
+        try:
+            assert state in ["Cancelled", "Received"]
+            order_collection = self.db["order"]
+            order_archive_collection = self.db["order_archive"]
+            
+            order_info = order_collection.find_one({"oid": oid})
+            if order_info is None:
+                raise PyMongoError(f"No order found with oid: {oid}")
+            
+            archived_order = order_info.copy()
+            archived_order["state"] = state
+            
+            order_archive_collection.insert_one(archived_order)
+            
+            order_collection.delete_one({"oid": oid})
+            pass
+        except PyMongoError as e:
+            logging.info("528, {}".format(str(e)))
+            return
+        except BaseException as e:
+            logging.info("530, {}".format(str(e)))
+            return
+        return
