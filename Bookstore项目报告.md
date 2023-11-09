@@ -1,0 +1,259 @@
+# Bookstore项目报告
+
+## 小组成员及其分工：
+
+## 1. 文件结构：
+
+## 2. 数据库设计：
+
+## 3.功能实现设计及测试
+
+### 3.1  User：
+
+#### 3.1.1 register：
+
+- ##### be/model：
+
+  
+
+- ##### be/view：
+
+  
+
+- ##### be/access：
+
+  
+
+#### 3.1.2 check token：
+- ##### be/model：
+
+  
+
+- ##### be/view：
+
+  
+
+- ##### be/access：
+
+  
+
+#### 3.1.3 check password:
+- ##### be/model：
+
+  
+
+- ##### be/view：
+
+  
+
+- ##### be/access：
+
+  
+
+#### 3.1.4 login:
+- ##### be/model：
+
+  
+
+- ##### be/view：
+
+  
+
+- ##### be/access：
+
+  
+
+#### 3.1.5 logout:
+- ##### be/model：
+
+  
+
+- ##### be/view：
+
+  
+
+- ##### be/access：
+
+  
+
+#### 3.1.6 unregister:
+- ##### be/model：
+
+  
+
+- ##### be/view：
+
+  
+
+- ##### be/access：
+
+  
+
+#### 3.1.7 change_password:
+- ##### be/model：
+
+  
+
+- ##### be/view：
+
+  
+
+- ##### be/access：
+
+  
+
+### 3.2  Seller接口：
+
+#### 3.2.1 add_book:
+- ##### be/model：
+
+  
+
+- ##### be/view：
+
+  
+
+- ##### be/access：
+
+  
+
+#### 3.2.2 add_stock_level:
+- ##### be/model：
+
+  
+
+- ##### be/view：
+
+  
+
+- ##### be/access：
+
+  
+
+#### 3.2.3 create_store:
+- ##### be/model：
+
+  
+
+- ##### be/view：
+
+  
+
+- ##### be/access：
+
+  
+
+#### 3.2.4 handle_order:
+- ##### be/model：
+
+  
+
+- ##### be/view：
+
+  
+
+- ##### be/access：
+
+  
+
+- ##### fe/test：
+
+  
+
+### 3.3  buyer接口：
+
+#### 3.3.1 new_order:
+- ##### be/model：
+
+  
+
+- ##### be/view：
+
+  
+
+- ##### be/access：
+
+  
+
+#### 3.3.2 payment:
+- ##### be/model：
+
+  
+
+- ##### be/view：
+
+  
+
+- ##### be/access：
+
+  
+
+#### 3.3.3 add_funds:
+- ##### be/model：
+
+  
+
+- ##### be/view：
+
+  
+
+- ##### be/access：
+
+  
+
+#### 3.3.4 confirm:
+- ##### be/model：
+
+  
+
+- ##### be/view：
+
+  
+
+- ##### be/access：
+
+  
+
+- ##### fe/test：
+
+  
+
+#### 3.3.5 list_order:
+- ##### be/model：
+
+  
+
+- ##### be/view：
+
+  
+
+- ##### be/access：
+
+  
+
+- ##### fe/test：
+
+  
+
+#### 3.3.6 cancel:
+- ##### be/model：
+
+  
+
+- ##### be/view：
+
+  
+
+- ##### be/access：
+
+  
+
+- ##### fe/test：
+
+  
+
+## 4. 测试覆盖率以及通过情况
+
+## 5.使用索引,程序与数据库执行的性能提升
+
+## 6.使用 git 等版本管理工具
