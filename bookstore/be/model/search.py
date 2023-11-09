@@ -31,8 +31,8 @@ class Search(db_conn.DBConn):
             if len(condition_list) == 0:
                 return error.error_empty_search_parameters()
             query = {"$and": condition_list}
-            print(query)
-            results = list(store_collection.find(query, {"_id": 0, "owner": 0}).skip((page - 1) * result_per_page).limit(result_per_page))
+            results = list(store_collection.find(query, {"_id": 0, "owner": 0, "content_seg": 0}).skip((page - 1) * result_per_page).limit(result_per_page))
+            print(results)
         except PyMongoError as e:
             return 528, "{}".format(str(e)), []
         except BaseException as e:

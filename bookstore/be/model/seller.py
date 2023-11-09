@@ -42,7 +42,8 @@ class Seller(db_conn.DBConn):
                 "stock_level": stock_level,
                 "price": price,
                 "title": title,
-                "content": content_segmented,
+                "content": content,
+                "content_seg": content_segmented,
                 "tags": tags,
             }
             store_collection.insert_one(store_data)
