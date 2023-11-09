@@ -48,8 +48,6 @@ class User:
     token,
     terminal,
     sid, # 目前不清楚一个用户是否能开多个书店，暂定只能开一个书店，这一项为null或store的sid
-    orders, # 未完成的订单，存储oid
-    oldOrders, # 已完成的订单，存储oid
 ```
 
 `store`集合虽然看起来叫书店，但其实是用来表示书店和书的关系。
@@ -65,9 +63,7 @@ class Store:
     # 以及书本的元数据，包括：
     title,
     tags,
-    catelog,
-    content,
-    # 以上元数据建立全文索引
+    content, # 建立全文索引
 ```
 也可以在`store`中用一个列表存放所有的书本，但我觉得这样的方法可以保证上架/下架商品的CRUD操作更快。
 
@@ -79,6 +75,7 @@ class Order:
     sid # 书店id，建立索引
     # 以及一些其它的信息，没想好
     state, # 订单状态：待付款(Pending)，待发货(ToShip)，待收货(Shipped)
+    total_price, # 订单总价
 ```
 
 ```
@@ -100,6 +97,7 @@ class OrderArchive:
     sid # 书店id，建立索引
     # 以及一些其它的信息，没想好
     state, # 订单状态：已收货(Received)，已取消(Cancelled)
+    total_price, # 订单总价
 ```
 
 `OrderArchive`用于存储已经完成的订单（与书本的关系），将未完成的订单与已完成的订单分别存储的原因基于下面的事实：
