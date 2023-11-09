@@ -1,5 +1,5 @@
 import pytest
-import requests
+import re
 import uuid
 from fe.access.new_buyer import register_new_buyer
 from fe.test.gen_book_data import GenBook
@@ -14,8 +14,7 @@ class TestSearch:
         self.store_id = "test_search_store_id_{}".format(str(uuid.uuid1()))
         self.seller_id = "test_search_seller_id_{}".format(str(uuid.uuid1()))
         self.gen_book = GenBook(self.seller_id, self.store_id)
-        ok, book_list = self.gen_book.blg(non_exist_book_id=False, low_stock_level=False)
-        print(book_list)
+        ok, _ = self.gen_book.blg(non_exist_book_id=False, low_stock_level=False)
         assert ok
         url = fe.conf.URL
         self.search = Search(url_prefix = url)
@@ -29,7 +28,15 @@ class TestSearch:
         page = 1
         result_per_page = 10
         status_code,response = self.search.search(search_parameters, page, result_per_page)
+        
+        # check status
         assert status_code == 200
+        # check correct response
+        assert len(response) != 0
+        for result in response:
+            pattern = re.compile("三毛流浪记全集")
+            assert re.match(pattern, result["title"])
+            assert result["sid"] == self.store_id
 
     def test_all_search_books(self):
         search_parameters = {
@@ -39,16 +46,25 @@ class TestSearch:
         result_per_page = 10
         status_code, response = self.search.search(search_parameters, page, result_per_page)
         assert status_code == 200
+        assert len(response) != 0
+        for result in response:
+            pattern = re.compile("三毛流浪记（全集）")
+            assert re.match(pattern, result["title"])
 
     def test_store_tags_search_books(self):
         search_parameters = {
-            "tags":  ['漫画', '三毛', '张乐平', '童年', '中国漫画', '经典', '绘本', '中国'],
+            "tags":  ['漫画'],
             "scope": self.store_id
         }
         page = 1
         result_per_page = 10
         status_code,response = self.search.search(search_parameters, page, result_per_page)
         assert status_code == 200
+        assert len(response) != 0
+        for result in response:
+            tag = '漫画'
+            print(result)
+            assert tag in result["tags"]
 
     def test_store_content_search_books(self):
         search_parameters = {
@@ -59,6 +75,8 @@ class TestSearch:
         result_per_page = 10
         status_code, response = self.search.search(search_parameters, page, result_per_page)
         assert status_code == 200
+        assert len(response) != 0
+        
     
 
     def test_search_nonexistent_store(self):
@@ -74,3 +92,11 @@ class TestSearch:
 
         assert status_code == 513
 
+    def test_empty_search_para(self):
+        search_parameters = {}
+        page = 1
+        result_per_page = 10
+
+        status_code, response = self.search.search(search_parameters, page, result_per_page)
+        
+        assert status_code == 520
